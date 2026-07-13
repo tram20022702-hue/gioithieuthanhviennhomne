@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhóm 7 - Profile Carousel</title>
+    <!-- Thư viện Font chữ và Icon chuyên nghiệp -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            /* Background màu sắc tươi sáng, năng động và chuyên nghiệp */
+            background: linear-gradient(135deg, #e0f2fe 0%, #ecfdf5 50%, #eef2ff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 30px 10px;
+        }
+
+        /* --- DECORATIVE BACKGROUND MOTIFS (Họa tiết chuyên nghiệp) --- */
+        .decor-item {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.12;
+            z-index: 0;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+        }
+
+        /* Hiệu ứng bay bổng nhẹ nhàng cho họa tiết */
+        @keyframes floatSlow {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        @keyframes floatFast {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(-8deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .decor-cloud1 { top: 10%; left: 8%; width: 120px; animation: floatSlow 8s ease-in-out infinite; }
+        .decor-cloud2 { top: 15%; right: 5%; width: 140px; animation: floatFast 10s ease-in-out infinite; opacity: 0.15; }
+        .decor-cap { bottom: 15%; left: 5%; width: 90px; animation: floatFast 9s ease-in-out infinite; }
+        .decor-book { top: 40%; right: 8%; width: 80px; animation: floatSlow 7s ease-in-out infinite; }
+        .decor-ruler { bottom: 10%; right: 10%; width: 70px; animation: floatFast 11s ease-in-out infinite; }
+        .decor-clock { top: 50%; left: 6%; width: 75px; animation: floatSlow 12s ease-in-out infinite; }
+
+        /* --- UI LAYOUT --- */
+        .title-container {
+            text-align: center;
+            margin-bottom: 50px;
+            z-index: 10;
+        }
+
+        .title-container h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #1d4ed8, #059669);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-container p {
+            font-size: 1rem;
+            color: #475569;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* --- CAROUSEL 3D BÁN VÒNG TRÒN --- */
+        .carousel-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            height: 480px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px; /* Tạo độ sâu 3D chân thực */
+            z-index: 10;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- MEMBER CARDS --- */
+        .card {
+            position: absolute;
+            width: 300px;
+            height: 420px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.8s cubic-bezier(0.25, 1.1, 0.5, 1), 
+                        opacity 0.8s ease, 
+                        box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.15);
+        }
+
+        /* Khung chứa ảnh tràn viền mờ đáy không nền */
+        .card-image-area {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(to bottom, #f1f5f9, #ffffff);
+            overflow: hidden;
+            /* Mask giúp bo tròn và làm mờ dần viền dưới của ảnh một cách chuyên nghiệp */
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 75%, rgba(0,0,0,0) 100%);
+        }
+
+        .card-image-area img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            transition: transform 0.5s ease;
+        }
+
+        .card:hover .card-image-area img {
+            transform: scale(1.05);
+        }
+
+        /* Phần thông tin */
+        .card-info {
+            padding: 10px 24px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-grow: 1;
+            justify-content: space-between;
+        }
+
+        .member-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .member-role {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #059669;
+            background: #d1fae5;
+            padding: 4px 12px;
+            border-radius: 99px;
+            margin-bottom: 12px;
+        }
+
+        /* Làm nổi bật Trưởng nhóm */
+        .card.leader .member-role {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .member-slogan {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            color: #475569;
+            font-style: italic;
+            line-height: 1.4;
+            position: relative;
+            margin-top: auto;
+        }
+
+        .member-slogan::before {
+            content: '“';
+            font-size: 1.5rem;
+            color: #cbd5e1;
+            line-height: 0;
+            vertical-align: middle;
+            margin-right: 2px;
+        }
+
+        .member-slogan::after {
+            content: '”';
+            font-size: 1.5rem;
+            color: #cbd5e1;
+            line-height: 0;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+
+        /* --- ĐIỀU HƯỚNG --- */
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f172a;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .nav-button:hover {
+            background: #0f172a;
+            color: #ffffff;
+            box-shadow: 0 15px 30px rgba(15, 23, 42, 0.15);
+        }
+
+        .nav-prev { left: -20px; }
+        .nav-next { right: -20px; }
+
+        @media (max-width: 768px) {
+            .carousel-wrapper { height: 460px; }
+            .card { width: 260px; height: 380px; }
+            .nav-prev { left: 5px; }
+            .nav-next { right: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- --- VECTOR MOTIFS BACKGROUND --- -->
+    <!-- Đám mây 1 -->
+    <svg class="decor-item decor-cloud1" viewBox="0 0 100 100" fill="#3b82f6">
+        <path d="M10,60 C10,40 30,35 40,40 C45,25 70,25 75,40 C90,35 95,55 85,65 C90,75 75,85 60,80 C50,90 25,85 20,75 C5,75 5,65 10,60 Z" />
+    </svg>
+    <!-- Đám mây 2 -->
+    <svg class="decor-item decor-cloud2" viewBox="0 0 100 100" fill="#10b981">
+        <path d="M10,60 C10,40 30,35 40,40 C45,25 70,25 75,40 C90,35 95,55 85,65 C90,75 75,85 60,80 C50,90 25,85 20,75 C5,75 5,65 10,60 Z" />
+    </svg>
+    <!-- Mũ tốt nghiệp -->
+    <svg class="decor-item decor-cap" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+        <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+    </svg>
+    <!-- Quyển Sách -->
+    <svg class="decor-item decor-book" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    </svg>
+    <!-- Thước kẻ -->
+    <svg class="decor-item decor-ruler" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 3h14c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z"/>
+        <path d="M16 3v4M12 3v10M8 3v4"/>
+    </svg>
+    <!-- Đồng hồ -->
+    <svg class="decor-item decor-clock" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+    </svg>
+
+    <!-- --- TIÊU ĐỀ CHÍNH --- -->
+    <div class="title-container">
+        <p>Thành viên nổi bật</p>
+        <h1>Nhóm 7</h1>
+    </div>
+
+    <!-- --- CAROUSEL --- -->
+    <div class="carousel-wrapper">
+        <button class="nav-button nav-prev" onclick="moveCarousel(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        
+        <div class="carousel-container" id="carousel">
+            <!-- Thành viên 1 (Trưởng Nhóm) -->
+            <div class="card leader">
+                <div class="card-image-area">
+                    <img src="nguyen_le_cam_tien.jpg" alt="Nguyễn Lê Cẩm Tiên">
+                </div>
+                <div class="card-info">
+                    <h3 class="member-name">Nguyễn Lê Cẩm Tiên</h3>
+                    <span class="member-role">Trưởng nhóm</span>
+                    <p class="member-slogan">Unlock Your English Potential</p>
+                </div>
+            </div>
+
+            <!-- Thành viên 2 -->
+            <div class="card">
+                <div class="card-image-area">
+                    <img src="le_quynh_tram.jpg" alt="Lê Quỳnh Trâm">
+                </div>
+                <div class="card-info">
+                    <h3 class="member-name">Lê Quỳnh Trâm</h3>
+                    <span class="member-role">Thành viên</span>
+                    <p class="member-slogan">Don't just learn English. Live it.</p>
+                </div>
+            </div>
+
+            <!-- Thành viên 3 -->
+            <div class="card">
+                <div class="card-image-area">
+                    <img src="nguyen_thi_kim_phuong.jpg" alt="Nguyễn Thị Kim Phương">
+                </div>
+                <div class="card-info">
+                    <h3 class="member-name">Nguyễn Thị Kim Phương</h3>
+                    <span class="member-role">Thành viên</span>
+                    <p class="member-slogan">Learning a language is opening a new window to the world</p>
+                </div>
+            </div>
+
+            <!-- Thành viên 4 -->
+            <div class="card">
+                <div class="card-image-area">
+                    <img src="bui_thi_my_yen.jpg" alt="Bùi Thị Mỹ Yến">
+                </div>
+                <div class="card-info">
+                    <h3 class="member-name">Bùi Thị Mỹ Yến</h3>
+                    <span class="member-role">Thành viên</span>
+                    <p class="member-slogan">Think outside the box, speak inside the grammar</p>
+                </div>
+            </div>
+
+            <!-- Thành viên 5 -->
+            <div class="card">
+                <div class="card-image-area">
+                    <img src="nguyen_minh_han.jpg" alt="Nguyễn Minh Hân">
+                </div>
+                <div class="card-info">
+                    <h3 class="member-name">Nguyễn Minh Hân</h3>
+                    <span class="member-role">Thành viên</span>
+                    <p class="member-slogan">English: Your Global Passport.</p>
+                </div>
+            </div>
+
+            <!-- Thành viên 6 -->
+            <div class="card">
+                <div class="card-image-area">
+                    <img src="tran_an_thi_ai_duyen.jpg" alt="Trần An Thị Ái Duyên">
+                </div>
+                <div class="card-info">
+                    <h3 class="member-name">Trần An Thị Ái Duyên</h3>
+                    <span class="member-role">Thành viên</span>
+                    <p class="member-slogan">Learning is a journey, not a test.</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="nav-button nav-next" onclick="moveCarousel(1)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <!-- --- JAVASCRIPT ĐIỀU HƯỚNG QUỸ ĐẠO BÁN NGUYỆT --- -->
+    <script>
+        const cards = document.querySelectorAll('.card');
+        let currentIndex = 0;
+        const totalCards = cards.length;
+
+        function updateCarousel() {
+            cards.forEach((card, index) => {
+                let offset = index - currentIndex;
+                
+                // Thuật toán quay vòng tròn danh sách liên kết
+                if (offset < -Math.floor(totalCards / 2)) offset += totalCards;
+                if (offset > Math.floor(totalCards / 2)) offset -= totalCards;
+
+                // Các biến số học cho quỹ đạo BÁN NGUYỆT (Arc) mờ dần
+                let translateX = 0;
+                let translateY = 0;
+                let translateZ = 0;
+                let rotateY = 0;
+                let scale = 1;
+                let opacity = 1;
+                let zIndex = 1;
+
+                // CẤU HÌNH VỊ TRÍ QUỸ ĐẠO VÒNG CUNG
+                if (offset === 0) {
+                    // Thẻ ở chính giữa (Đỉnh của bán nguyệt)
+                    translateX = 0;
+                    translateY = -25; // Đẩy nhẹ lên trên tạo đỉnh cung tròn
+                    translateZ = 50;  // Tiến lên phía trước người xem
+                    rotateY = 0;
+                    scale = 1.15;
+                    opacity = 1;
+                    zIndex = 10;
+                } 
+                else if (offset === 1) {
+                    // Thẻ ngay bên phải
+                    translateX = 240;
+                    translateY = 15;  // Hạ dần xuống theo đường bán nguyệt
+                    translateZ = -50; // Lùi về sau tạo chiều sâu
+                    rotateY = -20;    // Xoay góc nghiêng hướng vào trung tâm
+                    scale = 0.85;
+                    opacity = 0.75;   // Mờ bớt
+                    zIndex = 5;
+                } 
+                else if (offset === -1) {
+                    // Thẻ ngay bên trái
+                    translateX = -240;
+                    translateY = 15;  // Hạ dần xuống theo đường bán nguyệt
+                    translateZ = -50; // Lùi về sau tạo chiều sâu
+                    rotateY = 20;     // Xoay góc nghiêng hướng vào trung tâm
+                    scale = 0.85;
+                    opacity = 0.75;   // Mờ bớt
+                    zIndex = 5;
+                } 
+                else if (offset === 2) {
+                    // Thẻ xa hơn ở bên phải (Bắt đầu biến mất)
+                    translateX = 400;
+                    translateY = 80;   // Hạ thấp sâu hơn
+                    translateZ = -150; // Lùi xa hẳn ra sau
+                    rotateY = -40;
+                    scale = 0.6;
+                    opacity = 0;       // BIẾN MẤT HOÀN TOÀN
+                    zIndex = 2;
+                } 
+                else if (offset === -2) {
+                    // Thẻ xa hơn ở bên trái (Bắt đầu biến mất)
+                    translateX = -400;
+                    translateY = 80;   // Hạ thấp sâu hơn
+                    translateZ = -150; // Lùi xa hẳn ra sau
+                    rotateY = 40;
+                    scale = 0.6;
+                    opacity = 0;       // BIẾN MẤT HOÀN TOÀN
+                    zIndex = 2;
+                } 
+                else {
+                    // Tất cả các thẻ ẩn nấp phía sau vòng tròn
+                    translateX = offset > 0 ? 500 : -500;
+                    translateY = 120;
+                    translateZ = -250;
+                    rotateY = offset > 0 ? -60 : 60;
+                    scale = 0.4;
+                    opacity = 0;       // BIẾN MẤT HOÀN TOÀN
+                    zIndex = 1;
+                }
+
+                // Thực thi chuyển động 3D
+                card.style.transform = `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`;
+                card.style.opacity = opacity;
+                card.style.zIndex = zIndex;
+                
+                // Chặn click chuột lên các thẻ đang ẩn/mờ ở hai bên
+                if (offset === 0) {
+                    card.style.pointerEvents = 'auto';
+                } else {
+                    card.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        function moveCarousel(direction) {
+            currentIndex = (currentIndex + direction + totalCards) % totalCards;
+            updateCarousel();
+        }
+
+        // Tự động chuyển đổi sau mỗi 5 giây
+        let autoSlide = setInterval(() => moveCarousel(1), 5000);
+
+        // Tạm dừng tự chạy khi di chuột vào và chạy lại khi di chuột ra
+        const wrapper = document.querySelector('.carousel-wrapper');
+        wrapper.addEventListener('mouseenter', () => clearInterval(autoSlide));
+        wrapper.addEventListener('mouseleave', () => {
+            clearInterval(autoSlide);
+            autoSlide = setInterval(() => moveCarousel(1), 5000);
+        });
+
+        // Khởi động vị trí đầu tiên
+        updateCarousel();
+    </script>
+</body>
+</html>
